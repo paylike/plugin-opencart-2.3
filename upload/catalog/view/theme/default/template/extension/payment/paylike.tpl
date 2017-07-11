@@ -16,27 +16,31 @@ $('body').on('click', '#button-confirm', function() {
         amount: <?php echo $amount; ?>,
         custom: {
             orderId: '<?php echo $order_id; ?>',
-            products: [
-                <?php echo $products; ?>
-            ],
-            name: '<?php echo $name; ?>',
-            email: '<?php echo $email; ?>',
-            telephone: '<?php echo $telephone; ?>',
-            address: '<?php echo $address; ?>',
-            customerIp: '<?php echo $ip; ?>',
-            locale: '<?php echo $_SESSION['language']; ?>',
-            platform_version: '<?php echo VERSION; ?>',
-            ecommerce: 'opencart',
-            version: '1.0.1'
-        },
-        fields: [],
+            products:  <?php echo $products; ?>,
+            customer:{
+                name: '<?php echo $name; ?>',
+                email: '<?php echo $email; ?>',
+                telephone: '<?php echo $telephone; ?>',
+                address: '<?php echo $address; ?>',
+                customerIp: '<?php echo $ip; ?>'
+                },
+            platform:{
+                name: 'opencart',
+                version: '<?php echo VERSION; ?>',
+                },
+            ecommerce: {
+                name: 'opencart',
+                version: '<?php echo VERSION; ?>',
+                },
+            version: '1.0.2'
+            },
+      locale: '<?php echo $lc;  ?>'
     }, function(err, res) {
         if (err)
             return console.log(err);
 
         console.log(res);
         console.log('++++++++++++++++++++++++++++');
-        var name_parts = res.custom.name.split(' ');
 
         $.ajax({
             url: 'index.php?route=extension/payment/paylike/process_payment',
@@ -53,8 +57,14 @@ $('body').on('click', '#button-confirm', function() {
                 $('#button-confirm').button('reset');
             },
             success: function(json) {
-                console.log(json);
-                location.href = json.redirect;
+	            if( json.hasOwnProperty('error') ) {
+		            var html = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Warning: ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>';
+		            $('#button-confirm').closest('.buttons').before(html);
+	            }
+
+	            if( json.hasOwnProperty('redirect') ) {
+		            location.href = json.redirect;
+	            }
             }
         });
     });
