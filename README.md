@@ -1,3 +1,8 @@
+# Warning
+This plugin is now deprecated in favor of [this new version](https://github.com/paylike/plugin-opencart-3). 
+Updating is backwards compatible so you can just use the new plugin to overwrite the old one and you will be able to continue where you left off with your transactions. 
+ 
+ 
 # OpenCart plugin for Paylike
 
 This plugin is *not* developed or maintained by Paylike but kindly made
