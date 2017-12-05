@@ -162,6 +162,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
             "XAF",
             "XOF",
             "XPF",
+            "UGX",
+            "CLP",
         );
         $three_decimal_currency = array(
             "BHD",

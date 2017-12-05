@@ -409,6 +409,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
                                     "XAF",
                                     "XOF",
                                     "XPF",
+                                    "CLP",
+                                    "UGX",
                                 );
                                 $three_decimal_currency = array(
                                     "BHD",
@@ -538,6 +540,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
             "XAF",
             "XOF",
             "XPF",
+            "UGX",
+            "CLP",
         );
         $three_decimal_currency = array(
             "BHD",
