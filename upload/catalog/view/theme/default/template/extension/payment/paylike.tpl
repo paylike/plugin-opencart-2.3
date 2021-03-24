@@ -4,9 +4,9 @@
   </div>
 </div>
 
-<script type="text/javascript" src="https://sdk.paylike.io/3.js"></script>
+<script type="text/javascript" src="https://sdk.paylike.io/6.js"></script>
 <script type="text/javascript"><!--
-    
+
 $('body').on('click', '#button-confirm', function() {
     var paylike = Paylike('<?php echo $paylike_public_key; ?>');
     paylike.popup({
