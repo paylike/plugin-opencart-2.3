@@ -32,7 +32,7 @@ $('body').on('click', '#button-confirm', function() {
                 name: 'opencart',
                 version: '<?php echo VERSION; ?>',
                 },
-            version: '1.0.2'
+            version: '1.0.3'
             },
       locale: '<?php echo $lc;  ?>'
     }, function(err, res) {
