@@ -16,6 +16,8 @@ You can also find information about the plugin here: https://paylike.io/plugins/
 
 - 2.3
 
+Last tested version: 2.3.0.2
+
 ## Prerequisites
 
 - The plugin needs vQmod to function, you can read how to install it here: https://github.com/vqmod/vqmod/wiki/Installing-vQmod-on-OpenCart
