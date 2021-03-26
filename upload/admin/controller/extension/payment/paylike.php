@@ -33,7 +33,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		$this->db->query($sql);
 
 		$data['heading_title'] = $this->language->get('heading_title');
-		
+
 		$data['text_edit'] = $this->language->get('text_edit');
 		$data['text_enabled'] = $this->language->get('text_enabled');
 		$data['text_disabled'] = $this->language->get('text_disabled');
@@ -44,18 +44,18 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		$data['text_live'] = $this->language->get('text_live');
 		$data['text_capture_instant'] = $this->language->get('text_capture_instant');
 		$data['text_capture_delayed'] = $this->language->get('text_capture_delayed');
-		
+
 		$data['payment_method_title'] = $this->language->get('payment_method_title');
 		$data['payment_method_description'] = $this->language->get('payment_method_description');
 		$data['entry_title'] = $this->language->get('entry_title');
-		$data['description_status'] = $this->language->get('description_status');		
+		$data['description_status'] = $this->language->get('description_status');
 		$data['entry_description'] = $this->language->get('entry_description');
 		$data['entry_mode'] = $this->language->get('entry_mode');
 		$data['entry_test_key'] = $this->language->get('entry_test_key');
 		$data['entry_test_app_key'] = $this->language->get('entry_test_app_key');
 		$data['entry_live_key'] = $this->language->get('entry_live_key');
 		$data['entry_live_app_key'] = $this->language->get('entry_live_app_key');
-		
+
 		$data['entry_total'] = $this->language->get('entry_total');
 		$data['entry_order_status'] = $this->language->get('entry_order_status');
 		$data['entry_capture'] = $this->language->get('entry_capture');
@@ -65,7 +65,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 
 		$data['default_payment_method_title'] = 'Pay with Paylike';
 		$data['default_payment_method_description'] = $this->language->get('default_payment_method_description');
-		$data['default_entry_title'] = $this->config->get('config_name');		
+		$data['default_entry_title'] = $this->config->get('config_name');
 		//$data['default_entry_description'] = $this->language->get('default_entry_description');
 		$data['default_entry_description'] = '';
 
@@ -203,21 +203,21 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		} else {
 			$data['paylike_description'] = $this->config->get('paylike_description');
 		}
-		
+
 		//Mode(Test/Live)
 		if (isset($this->request->post['paylike_mode'])) {
 			$data['paylike_mode'] = $this->request->post['paylike_mode'];
 		} else {
 			$data['paylike_mode'] = $this->config->get('paylike_mode');
 		}
-		
+
 		//Testmode Public Key
 		if (isset($this->request->post['paylike_test_key'])) {
 			$data['paylike_test_key'] = $this->request->post['paylike_test_key'];
 		} else {
 			$data['paylike_test_key'] = $this->config->get('paylike_test_key');
 		}
-		
+
 		//Testmode App Key
 		if (isset($this->request->post['paylike_test_app_key'])) {
 			$data['paylike_test_app_key'] = $this->request->post['paylike_test_app_key'];
@@ -231,21 +231,21 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		} else {
 			$data['paylike_live_key'] = $this->config->get('paylike_live_key');
 		}
-		
+
 		//Livemode App Key
 		if (isset($this->request->post['paylike_live_app_key'])) {
 			$data['paylike_live_app_key'] = $this->request->post['paylike_live_app_key'];
 		} else {
 			$data['paylike_live_app_key'] = $this->config->get('paylike_live_app_key');
 		}
-		
+
 		//Total
 		if (isset($this->request->post['paylike_total'])) {
 			$data['paylike_total'] = $this->request->post['paylike_total'];
 		} else {
 			$data['paylike_total'] = $this->config->get('paylike_total');
 		}
-		
+
 		//Order Status
 		if (isset($this->request->post['paylike_order_status_id'])) {
 			$data['paylike_order_status_id'] = $this->request->post['paylike_order_status_id'];
@@ -335,7 +335,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 			&& isset($this->request->post['p_action'])
 			&& !empty($this->request->post['p_action'])
 			//&& isset($this->request->post['p_amount'])
-			//&& !empty($this->request->post['p_amount']) 
+			//&& !empty($this->request->post['p_amount'])
 		) {
 				//Set app key
 				$app_key = ($this->config->get('paylike_mode') === 'test')?$this->config->get('paylike_test_app_key'):$this->config->get('paylike_live_app_key');
@@ -345,14 +345,23 @@ class ControllerExtensionPaymentPaylike extends Controller {
        			$this->logger->write('Paylike Class Initialized in Admin');
 
        			$this->load->language('extension/payment/paylike');
+				$this->load->model('sale/order');
+
+				$transactionId = $this->request->post['trans_ref'];
+				$action = $this->request->post['p_action'];
 
        			$orderId = $this->request->post['p_order_id'];
-       			$transactionId = $this->request->post['trans_ref'];
-       			$action = $this->request->post['p_action'];
-				if(isset($this->request->post['p_amount']) && !empty($this->request->post['p_amount']))
-					$amount = $this->get_paylike_amount($this->request->post['p_amount']);
-				else
+				$orderInfo = $this->model_sale_order->getOrder($orderId);
+
+				$orderCurrency = $orderInfo['currency_code'];
+				$storeCurrency = $this->config->get('config_currency');
+
+				if (isset($this->request->post['p_amount']) && !empty($this->request->post['p_amount'])){
+					/* Convert amount using store currency */
+					$amount = $this->get_paylike_amount($this->request->post['p_amount'],$storeCurrency);
+				}else{
 					$amount = 0;
+				}
        			$reason = $this->request->post['p_reason'];
        			$captured = $this->request->post['p_captured'];
 
@@ -366,17 +375,23 @@ class ControllerExtensionPaymentPaylike extends Controller {
 				            $data = array(
 				                'amount'   => $amount,
 				                'descriptor' => "Order #{$orderId}",
-				                'currency' => $this->session->data['currency']
+				                'currency' => $orderCurrency
 				            );
 							$trans_data = Paylike\Transaction::fetch( $transactionId );
 							$data['amount'] = (int) $trans_data['transaction']['pendingAmount'];
-				            $response = Paylike\Transaction::capture( $transactionId, $data );			
+				            $response = Paylike\Transaction::capture( $transactionId, $data );
 				            if (isset($response['transaction'])) {
-				            	$this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '5' WHERE `order_id` = '{$orderId}'");
-				            	$this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET captured = 'YES' WHERE `order_id` = '{$orderId}'");
-				            	$response['order_status_id'] = 5;
+								$response['order_status_id'] = 5;
 				            	$response['success_message'] = $this->language->get('order_captured_success');
-				            }
+								$data = array(
+									'order_status_id' => $response['order_status_id'],
+									'notify' => false,
+									'comment' => $response['success_message']
+							  );
+							  $this->addOrderHistory($orderId, $data);
+
+							  $this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET captured = 'YES' WHERE `order_id` = '".$orderId."'");
+							}
 				            else {
 				            	$response['transaction']['errors'] = $this->get_response_error($response);
 				            	$response['transaction']['error'] = 1;
@@ -392,8 +407,6 @@ class ControllerExtensionPaymentPaylike extends Controller {
 			            if ( 'YES' == $captured ) {
 				            $response = Paylike\Transaction::refund( $transactionId, $data );
 				            if (isset($response['transaction'])) {
-				            	$this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '11' WHERE `order_id` = '{$orderId}'");
-								$response['order_status_id'] = 11;
                                 $zero_decimal_currency = array(
                                     "BIF",
                                     "BYR",
@@ -420,17 +433,24 @@ class ControllerExtensionPaymentPaylike extends Controller {
                                     "OMR",
                                     "TND",
                                 );
-                                $currency_code =  $this->session->data['currency'];
-                                if (in_array($currency_code, $zero_decimal_currency)) {
+
+								if (in_array($orderCurrency, $zero_decimal_currency)) {
                                     $divider = 1;
                                 } else {
-                                    if (in_array($currency_code, $three_decimal_currency)) {
+									if (in_array($orderCurrency, $three_decimal_currency)) {
                                         $divider = 1000;
                                     }else{
                                         $divider = 100;
                                     }
                                 }
 								$response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'].' '.number_format(($amount/$divider), 2, '.', ''));
+								$response['order_status_id'] = 11;
+								$data = array(
+									  'order_status_id' => $response['order_status_id'],
+									  'notify' => false,
+									  'comment' => $response['success_message']
+								);
+								$this->addOrderHistory($orderId, $data);
 				            }
 							else {
 								$response['transaction']['errors'] = $this->get_response_error($response);
@@ -449,20 +469,25 @@ class ControllerExtensionPaymentPaylike extends Controller {
 							$this->logger->write('Paylike Void Action Initialized in Admin for Amount: ' . $amount);
 							$trans_data = Paylike\Transaction::fetch( $transactionId );
 							$data['amount'] = (int) $trans_data['transaction']['amount'] - $trans_data['transaction']['refundedAmount'];
-							
+
 							$response = Paylike\Transaction::void( $transactionId, $data );
 				            if (isset($response['transaction'])) {
-				            	$this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '{$orderId}'");
 				            	$response['order_status_id'] = 16;
 								$response['success_message'] = $this->language->get('order_voided_success');
-				            }							
-							
+								$data = array(
+									'order_status_id' => $response['order_status_id'],
+									'notify' => false,
+									'comment' => $response['success_message']
+							  );
+							  $this->addOrderHistory($orderId, $data);
+				            }
+
 							if (!isset($response['transaction'])) {
 								$response['transaction']['errors'] = $this->get_response_error($response);
 								$response['transaction']['error'] = 1;
 							}
 				        }
-						
+
 						/*$data['amount'] = $amount;
 			            if ( $reason ) {
 			                $data['descriptor'] = $reason;
@@ -488,7 +513,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($response));
 	}
-	
+
 	/**
      * Gets errors from a failed api request
      *
@@ -517,7 +542,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
     public function get_paylike_amount( $total, $currency = '' ) {
 
 
-        $total = $this->currency->format($total, $this->session->data['currency']);
+        $total = $this->currency->format($total, $currency, '', false);
         $this->load->model('localisation/currency');
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
@@ -560,8 +585,59 @@ class ControllerExtensionPaymentPaylike extends Controller {
                 $multiplier = 100;
             }
         }
-        $total = number_format( str_replace(',', '', $total), 2, ".", "" ) * $multiplier;
+        $total = number_format($total, 2, ".", "" ) * $multiplier;
 
         return ceil($total);
+    }
+
+
+    /**
+     * Change order status and add history registration
+     *
+     * @param string $order_id | The order id
+     * @param array $data | [order_status_id, notify, comment] | The order data
+     * @param int $store_id | default 0 | The store id
+     *
+     * @return string
+     */
+    public function addOrderHistory($order_id, $data, $store_id = 0)
+    {
+        $json = array();
+
+        $this->load->model('setting/store');
+
+        $store_info = $this->model_setting_store->getStore($store_id);
+
+        if ($store_info) {
+            $url = $store_info['ssl'];
+        } else {
+            $url = HTTPS_CATALOG;
+        }
+
+        if (isset($this->session->data['cookie'])) {
+            $curl = curl_init();
+
+            // Set SSL if required
+            if (substr($url, 0, 5) == 'https') {
+                curl_setopt($curl, CURLOPT_PORT, 443);
+            }
+
+            curl_setopt($curl, CURLOPT_HEADER, false);
+            curl_setopt($curl, CURLINFO_HEADER_OUT, true);
+            curl_setopt($curl, CURLOPT_USERAGENT, $this->request->server['HTTP_USER_AGENT']);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_FORBID_REUSE, false);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_URL, $url . 'index.php?route=api/order/history&order_id=' . $order_id);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($curl, CURLOPT_COOKIE, session_name() . '=' . $this->session->data['cookie'] . ';');
+
+            $json = curl_exec($curl);
+
+            curl_close($curl);
+        }
+        return $json;
     }
 }

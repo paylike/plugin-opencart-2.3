@@ -49,7 +49,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
     public $logger;
 
     public $last_error_message = '';
-	
+
     public function index() {
 		header('Access-Control-Allow-Origin: *');
 		$this->load->language('extension/payment/paylike');
@@ -96,36 +96,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		} else {
 			return $this->load->view('default/template/extension/payment/paylike.tpl', $data);
 		}
-		
-	}
 
-	public function update() {
-		$this->load->language('extension/payment/paylike');
-		
-		if(isset($_POST['trans_ref']) && $_POST['trans_ref'] != ''){
-			$message = "";
-			$this->load->model('checkout/order');
-			$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-			$message .= $_POST['trans_ref'];
-			$this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('config_order_status_id'), $message);
-
-			$amount = round($this->currency->format($order_info['total'], $order_info['currency_code'], 1.00000, false));
-			$pat_order_query = $this->db->query("SELECT order_id from " . DB_PREFIX . "paylike_admin where order_id = '" . $order_info['order_id'] . "'");
-			if (!$pat_order_query->num_rows) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "paylike_admin SET `order_id` = '" . $order_info['order_id'] . "', trans_id = '" .$_POST['trans_ref'] . "', amount = " .$amount . "");
-			} else {
-				$this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET trans_id = '" . $_POST['trans_ref'] . "', amount = '" . $amount . "' WHERE `order_id` = '" . $order_info['order_id'] . "'");
-			}
-
-			$json['success'] = $this->language->get('text_order_updated');
-			$json['redirect'] = $this->url->link('checkout/success', '', true);
-		} else {
-			$json['error'] = $this->language->get('text_no_transaction_found');
-		}
-		
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
 	}
 
 	/**
@@ -139,7 +110,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
     public function get_paylike_amount( $total, $currency = '' ) {
 
 
-        $total = $this->currency->format($total, $this->session->data['currency']);
+        $total = $this->currency->format($total,$currency, '', false);
         $this->load->model('localisation/currency');
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
@@ -182,7 +153,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
                 $multiplier = 100;
             }
         }
-        $total = number_format( str_replace(',', '', $total), 2, ".", "" ) * $multiplier;
+        $total = number_format($total, 2, ".", "" ) * $multiplier;
 
         return ceil($total);
     }
@@ -288,9 +259,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
             $this->logger->write('Unable to capture transaction!');
             $response = $result;
         } else {
-            $orderId = $order['order_id'];
-            $status = $this->config->get('paylike_order_status_id');
-            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '{$status}' WHERE `order_id` = '{$orderId}'");
+			$this->load->model('checkout/order');
+			$this->model_checkout_order->addOrderHistory($order['order_id'], $this->config->get('paylike_order_status_id'), $result['transaction']['id']);
             $this->get_transaction_authorization_details($result);
             $this->save_transaction($result['transaction']['id'], $order);
             $response = $result;
@@ -311,9 +281,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
             $response = $result;
 
         } else {
-            $orderId = $order['order_id'];
-            $status = $this->config->get('paylike_order_status_id');
-            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '{$status}' WHERE `order_id` = '{$orderId}'");
+            $this->load->model('checkout/order');
+			$this->model_checkout_order->addOrderHistory($order['order_id'], $this->config->get('paylike_order_status_id'), $result['transaction']['id']);
             $this->get_transaction_capture_details( $result );
             $this->save_transaction( $result['transaction']['id'], $order, 'YES' );
             $response = $result;
@@ -393,8 +362,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
         }
 
         if (isset($result['transaction'])) {
-            return 1 == $result['transaction']['successful'] 
-                && $result['transaction']['currency'] == $order['currency_code'] 
+            return 1 == $result['transaction']['successful']
+                && $result['transaction']['currency'] == $order['currency_code']
                 && (int)$result['transaction']['amount'] == (int)$amount ;
         } else {
             return false;
@@ -438,7 +407,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
     protected function save_transaction( $transaction_id, $order, $captured = 'NO' )
     {
     	$amount = $this->get_paylike_amount($order['total'], $order['currency_code']);
-        $pat_order_query = $this->db->query("SELECT order_id from " . DB_PREFIX . "paylike_admin where order_id = '" . $order['order_id'] . "'");
+        $pat_order_query = $this->db->query("SELECT order_id from " . DB_PREFIX . "paylike_admin WHERE order_id = '" . $order['order_id'] . "'");
 		if (!$pat_order_query->num_rows) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "paylike_admin SET `order_id` = '" . $order['order_id'] . "', trans_id = '" .$transaction_id . "', amount = " .$amount . ", captured = '" . $captured . "'");
 		} else {
