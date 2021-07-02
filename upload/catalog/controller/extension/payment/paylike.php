@@ -116,7 +116,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
         foreach ($results as $currency) {
-            $currencies[] = strtoupper((isset($currency['symbol_left']) && !empty($currency['symbol_left']))?$currency['symbol_left']:((isset($currency['symbol_right']) && !empty($currency['symbol_right']))?$currency['symbol_right']:''));
+            $currencies[] = (isset($currency['symbol_left']) && !empty($currency['symbol_left']))?strtoupper($currency['symbol_left']):((isset($currency['symbol_right']) && !empty($currency['symbol_right']))?strtoupper($currency['symbol_right']):'');
         }
         $total = str_replace($currencies, '', $total);
         $zero_decimal_currency = array(
