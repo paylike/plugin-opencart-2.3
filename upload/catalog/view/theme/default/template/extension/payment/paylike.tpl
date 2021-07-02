@@ -12,7 +12,7 @@ $('body').on('click', '#button-confirm', function() {
     paylike.popup({
         title: "<?php echo $popup_title; ?>",
         description: "<?php echo $popup_description; ?>",
-        currency: '<?php echo $currency_code; ?>',
+        currency: '<?php echo strtoupper($currency_code); ?>',
         amount: <?php echo $amount; ?>,
         custom: {
             orderId: '<?php echo $order_id; ?>',

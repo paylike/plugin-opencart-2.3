@@ -116,7 +116,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
         foreach ($results as $currency) {
-            $currencies[] = (isset($currency['symbol_left']) && !empty($currency['symbol_left']))?strtoupper($currency['symbol_left']):((isset($currency['symbol_right']) && !empty($currency['symbol_right']))?strtoupper($currency['symbol_right']):'');
+            $currencies[] = (isset($currency['symbol_left']) && !empty($currency['symbol_left'])) ? (strtoupper($currency['symbol_left'])) : ((isset($currency['symbol_right']) && !empty($currency['symbol_right'])) ? (strtoupper($currency['symbol_right'])) : (''));
         }
         $total = str_replace($currencies, '', $total);
         $zero_decimal_currency = array(
@@ -191,7 +191,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
     		$this->load->model('checkout/order');
 			$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
             $order_info['currency_code'] = strtoupper($order_info['currency_code']);
-            
+
             $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('config_order_status_id'), $_POST['trans_ref']);
             $transaction_id = $_POST['trans_ref'];
 
