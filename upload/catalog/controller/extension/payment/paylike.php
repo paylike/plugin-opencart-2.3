@@ -59,6 +59,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		$this->load->model('checkout/order');
 
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+        $order_info['currency_code'] = strtoupper($order_info['currency_code']);
 
 		$products = $this->cart->getProducts();
 		$products_array = array();
@@ -89,7 +90,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
 		$data['address'] = $order_info['payment_address_1'].', '.$order_info['payment_address_2'].', '.$order_info['payment_city'].', '.$order_info['payment_zone'].', '.$order_info['payment_country'].' - '.$order_info['payment_postcode'];
 		$data['ip'] = $order_info['ip'];
 		$data['amount'] = $this->get_paylike_amount($order_info['total'], $order_info['currency_code']);
-		$data['currency_code'] = $this->session->data['currency'];
+		$data['currency_code'] = strtoupper($this->session->data['currency']);
         $data['lc'] = $this->session->data['language'];
 		if( version_compare(VERSION, '2.2.0.0', '>=') ) {
 			return $this->load->view('extension/payment/paylike', $data);
@@ -115,7 +116,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
         foreach ($results as $currency) {
-            $currencies[] = (isset($currency['symbol_left']) && !empty($currency['symbol_left']))?$currency['symbol_left']:((isset($currency['symbol_right']) && !empty($currency['symbol_right']))?$currency['symbol_right']:'');
+            $currencies[] = strtoupper((isset($currency['symbol_left']) && !empty($currency['symbol_left']))?$currency['symbol_left']:((isset($currency['symbol_right']) && !empty($currency['symbol_right']))?$currency['symbol_right']:''));
         }
         $total = str_replace($currencies, '', $total);
         $zero_decimal_currency = array(
@@ -189,6 +190,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
     	if (isset($_POST['trans_ref']) && $_POST['trans_ref'] != ''){
     		$this->load->model('checkout/order');
 			$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+            $order_info['currency_code'] = strtoupper($order_info['currency_code']);
+            
             $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('config_order_status_id'), $_POST['trans_ref']);
             $transaction_id = $_POST['trans_ref'];
 
