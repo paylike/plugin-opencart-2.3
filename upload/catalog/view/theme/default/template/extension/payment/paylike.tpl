@@ -12,7 +12,7 @@ $('body').on('click', '#button-confirm', function() {
     paylike.popup({
         title: "<?php echo $popup_title; ?>",
         description: "<?php echo $popup_description; ?>",
-        currency: '<?php echo $currency_code; ?>',
+        currency: '<?php echo strtoupper($currency_code); ?>',
         amount: <?php echo $amount; ?>,
         custom: {
             orderId: '<?php echo $order_id; ?>',
@@ -32,7 +32,7 @@ $('body').on('click', '#button-confirm', function() {
                 name: 'opencart',
                 version: '<?php echo VERSION; ?>',
                 },
-            version: '1.0.3'
+            version: '1.0.4'
             },
       locale: '<?php echo $lc;  ?>'
     }, function(err, res) {
@@ -57,14 +57,14 @@ $('body').on('click', '#button-confirm', function() {
                 $('#button-confirm').button('reset');
             },
             success: function(json) {
-	            if( json.hasOwnProperty('error') ) {
-		            var html = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Warning: ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>';
-		            $('#button-confirm').closest('.buttons').before(html);
-	            }
+                if( json.hasOwnProperty('error') ) {
+                    var html = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Warning: ' + json.error + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>';
+                    $('#button-confirm').closest('.buttons').before(html);
+                }
 
-	            if( json.hasOwnProperty('redirect') ) {
-		            location.href = json.redirect;
-	            }
+                if( json.hasOwnProperty('redirect') ) {
+                    location.href = json.redirect;
+                }
             }
         });
     });
