@@ -1,8 +1,8 @@
 # Warning
-This plugin is now deprecated in favor of [this new version](https://github.com/paylike/plugin-opencart-3). 
-Updating is backwards compatible so you can just use the new plugin to overwrite the old one and you will be able to continue where you left off with your transactions. 
- 
- 
+This plugin is now deprecated in favor of [this new version](https://github.com/paylike/plugin-opencart-3).
+Updating is backwards compatible so you can just use the new plugin to overwrite the old one and you will be able to continue where you left off with your transactions.
+
+
 # OpenCart plugin for Paylike
 
 This plugin is *not* developed or maintained by Paylike but kindly made
@@ -28,9 +28,9 @@ Once you have installed OpenCart, follow these simple steps:
 1. Signup at [paylike.io](https://paylike.io) (it’s free)
 1. Create a live account
 1. Create an app key for your OpenCart website
-1. Copy all the files inside the `upload` folder to the opencart folder, this will add files to the necessary folders. This should be done via ftp, or inside a file manager, for example the cpanel file manager. 
+1. Copy all the files inside the `upload` folder to the opencart folder, this will add files to the necessary folders. This should be done via ftp, or inside a file manager, for example the cpanel file manager.
 2. Log in as administrator and click  "Extensions" from the top menu then "extension" then "payments" and install the Paylike plugin by clicking the `Install` link listed there.
-3. Click the Edit Paylike button 
+3. Click the Edit Paylike button
 4. Add the Public and App key that you can find in your Paylike account and enable the plugin
 
 ## Updating settings
@@ -38,10 +38,25 @@ Once you have installed OpenCart, follow these simple steps:
 Under the extension settings, you can:
  * Update the payment method text in the payment gateways list
  * Update the payment method description in the payment gateways list
- * Update the title that shows up in the payment popup 
+ * Update the title that shows up in the payment popup
  * Update the popup description, choose whether you want to show the popup  (the cart contents will show up instead)
  * Add test/live keys
  * Set payment mode (test/live)
  * Change the capture type (Instant/Manual via Paylike Tool)
- 
-  
+
+## Changelog
+
+#### 1.0.4:
+* Added logic to convert currency code to uppercase
+
+#### 1.0.3:
+* Updated to 6.js from 3.js
+
+#### 1.0.2:
+* Updated currencies support
+
+#### 1.0.1:
+* Code formatting, localization bugs fixed
+
+#### 1.0.0:
+* Initial version
