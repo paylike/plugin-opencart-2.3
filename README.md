@@ -44,7 +44,40 @@ Under the extension settings, you can:
  * Set payment mode (test/live)
  * Change the capture type (Instant/Manual via Paylike Tool)
 
+
+ ## How to capture / manage transactions
+
+   - You can Capture/Refund/Void an order accessing edit mode from Admin panel -> Sales -> Orders and press Edit button from Actions table column (the orders can be also accessed at YOUR_DOMAIN_URL/admin/index.php?route=sale/order).
+   - Go to `STEP 5. Totals` tab by pressing `Continue` button 4 times.
+   - In `Paylike Tool` dropdown select field you can:
+
+1. Capture
+    * In Instant mode, the orders are captured automatically
+    * In Delayed mode you can do this by selecting `Capture` and press 'Submit', then press 'Save'.
+2. Refund
+    * To Refund an order you can do this by selecting `Refund` and press 'Submit', then press 'Save'.
+3. Void
+    * To Void an order you can do this by selecting `Void` and press 'Submit', then press 'Save'.
+
+
+## Available features
+
+1. Capture
+   * Opencart admin panel: full capture
+   * Paylike admin panel: full/partial capture
+2. Refund
+   * Opencart admin panel: full/partial refund
+   * Paylike admin panel: full/partial refund
+3. Void
+   * Opencart admin panel: full void
+   * Paylike admin panel: full/partial void
+
+
 ## Changelog
+
+#### 1.2.0:
+* Updated js SDK to 10.js
+* Updated logic to work with SDK v10 version
 
 #### 1.0.4:
 * Added logic to convert currency code to uppercase

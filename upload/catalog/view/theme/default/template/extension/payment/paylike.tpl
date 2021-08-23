@@ -4,24 +4,28 @@
   </div>
 </div>
 
-<script type="text/javascript" src="https://sdk.paylike.io/6.js"></script>
+<script type="text/javascript" src="https://sdk.paylike.io/10.js"></script>
 <script type="text/javascript"><!--
 
 $('body').on('click', '#button-confirm', function() {
-    var paylike = Paylike('<?php echo $paylike_public_key; ?>');
-    paylike.popup({
-        title: "<?php echo $popup_title; ?>",
-        description: "<?php echo $popup_description; ?>",
-        currency: '<?php echo strtoupper($currency_code); ?>',
-        amount: <?php echo $amount; ?>,
+    var paylike = Paylike({key: '<?php echo $paylike_public_key; ?>'});
+    paylike.pay({
+        test: ('live' === '<?php echo $active_mode; ?>') ? (false) : (true),
+        title: '<?php echo $popup_title; ?>',
+        description: '<?php echo $popup_description; ?>',
+        amount: {
+          currency: '<?php echo strtoupper($currency_code); ?>',
+          exponent: <?php echo $exponent; ?>,
+          value: <?php echo $amount; ?>
+        },
         custom: {
             orderId: '<?php echo $order_id; ?>',
             products:  <?php echo $products; ?>,
             customer:{
-                name: "<?php echo $name; ?>",
+                name: '<?php echo $name; ?>',
                 email: '<?php echo $email; ?>',
                 telephone: '<?php echo $telephone; ?>',
-                address: "<?php echo $address; ?>",
+                address: '<?php echo $address; ?>',
                 customerIp: '<?php echo $ip; ?>'
                 },
             platform:{
@@ -32,7 +36,7 @@ $('body').on('click', '#button-confirm', function() {
                 name: 'opencart',
                 version: '<?php echo VERSION; ?>',
                 },
-            version: '1.0.4'
+            version: '<?php echo $plugin_version; ?>'
             },
       locale: '<?php echo $lc;  ?>'
     }, function(err, res) {

@@ -4,6 +4,12 @@ if ( ! class_exists( 'Paylike\Client' ) ) {
 }
 
 class ControllerExtensionPaymentPaylike extends Controller {
+
+    /**
+     * Version of OpenCart 2.x payment Paylike plugin
+     */
+    const PLUGIN_VERSION = '1.2.0';
+
     /**
      * Should we capture Credit cards
      *
@@ -76,6 +82,8 @@ class ControllerExtensionPaymentPaylike extends Controller {
         }
         $data['products'] = json_encode($products_array);
 
+        $data['plugin_version'] = self::PLUGIN_VERSION;
+        $data['active_mode'] = $this->config->get('paylike_mode');
         $data['paylike_public_key'] = ($this->config->get('paylike_mode') == 'test')?$this->config->get('paylike_test_key'):$this->config->get('paylike_live_key');
         $data['popup_title'] = $this->config->get('paylike_title');
         if($this->config->get('paylike_description_status') == 1){
@@ -91,6 +99,7 @@ class ControllerExtensionPaymentPaylike extends Controller {
         $data['ip'] = $order_info['ip'];
         $data['amount'] = $this->get_paylike_amount($order_info['total'], $order_info['currency_code']);
         $data['currency_code'] = strtoupper($this->session->data['currency']);
+        $data['exponent'] = $this->get_multiplier_value($order_info['currency_code'])['exponent']; //get exponent value from 'exponent' array key
         $data['lc'] = $this->session->data['language'];
         if( version_compare(VERSION, '2.2.0.0', '>=') ) {
             return $this->load->view('extension/payment/paylike', $data);
@@ -119,42 +128,10 @@ class ControllerExtensionPaymentPaylike extends Controller {
             $currencies[] = (isset($currency['symbol_left']) && !empty($currency['symbol_left'])) ? (strtoupper($currency['symbol_left'])) : ((isset($currency['symbol_right']) && !empty($currency['symbol_right'])) ? (strtoupper($currency['symbol_right'])) : (''));
         }
         $total = str_replace($currencies, '', $total);
-        $zero_decimal_currency = array(
-            "BIF",
-            "BYR",
-            "DJF",
-            "GNF",
-            "JPY",
-            "KMF",
-            "KRW",
-            "PYG",
-            "RWF",
-            "VND",
-            "VUF",
-            "XAF",
-            "XOF",
-            "XPF",
-            "UGX",
-            "CLP",
-        );
-        $three_decimal_currency = array(
-            "BHD",
-            "IQD",
-            "JQD",
-            "KWD",
-            "OMR",
-            "TND",
-        );
-        if (in_array($currency, $zero_decimal_currency)) {
-            $multiplier = 1;
-        } else {
-            if (in_array($currency, $three_decimal_currency)) {
-                $multiplier = 1000;
-            }else{
-                $multiplier = 100;
-            }
-        }
-        $total = number_format($total, 2, ".", "" ) * $multiplier;
+
+        $multiplier = $this->get_multiplier_value($currency['code']);
+
+        $total = number_format($total, 2, ".", "" ) * $multiplier['product'];
 
         return ceil($total);
     }
@@ -416,6 +393,54 @@ class ControllerExtensionPaymentPaylike extends Controller {
         } else {
             $this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET trans_id = '" . $transaction_id . "', amount = '" . $amount . "' WHERE `order_id` = '" . $order['order_id'] . "' AND  captured = '" . $captured . "'");
         }
+    }
+
+    /**
+     * Get the multiplier value correlated with currency code
+     *
+     * @param $currency
+     *
+     * @return array
+     */
+    protected function get_multiplier_value($currency)
+    {
+        $zero_decimal_currency = array(
+            "BIF",
+            "BYR",
+            "DJF",
+            "GNF",
+            "JPY",
+            "KMF",
+            "KRW",
+            "PYG",
+            "RWF",
+            "VND",
+            "VUF",
+            "XAF",
+            "XOF",
+            "XPF",
+            "UGX",
+            "CLP",
+        );
+        $three_decimal_currency = array(
+            "BHD",
+            "IQD",
+            "JQD",
+            "KWD",
+            "OMR",
+            "TND",
+        );
+        if (in_array($currency, $zero_decimal_currency)) {
+            $multiplier = ['product' => 1, 'exponent' => 1];
+        } else {
+            if (in_array($currency, $three_decimal_currency)) {
+                $multiplier = ['product' => 1000, 'exponent' => 3];
+            }else{
+                $multiplier = ['product' => 100, 'exponent' => 2];
+            }
+        }
+
+        return $multiplier;
     }
 
 }
